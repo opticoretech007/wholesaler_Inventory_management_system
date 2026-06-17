@@ -1,94 +1,84 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        .cards { display: flex; gap: 20px; margin-bottom: 30px; }
-        .card { background: #f0f0f0; padding: 20px; border-radius: 8px; min-width: 150px; text-align: center; }
-        .card h1 { margin: 0; font-size: 40px; color: #333; }
-        .card p { margin: 5px 0 0; color: #666; }
-        .low-stock { color: red; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #f5f5f5; }
-        .badge-in { color: green; font-weight: bold; }
-        .badge-out { color: red; font-weight: bold; }
-        nav { margin-bottom: 20px; }
-        nav a { margin-right: 15px; text-decoration: none; color: blue; }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
+@section('title', 'Dashboard')
 
-<nav>
-    <a href="/">Dashboard</a>
-    <a href="/stock-in">Stock IN</a>
-    <a href="/stock-out">Stock OUT</a>
-</nav>
+@section('content')
 
-<h2>Dashboard</h2>
+<h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
 {{-- Summary Cards --}}
-<div class="cards">
-    <div class="card">
-        <h1>{{ $totalStock }}</h1>
-        <p>Total Stock</p>
+<div class="grid grid-cols-2 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow p-6 text-center">
+        <p class="text-5xl font-bold text-blue-700">{{ $totalStock }}</p>
+        <p class="text-gray-500 mt-2 text-sm">Total Stock</p>
     </div>
-    <div class="card">
-        <h1 class="low-stock">{{ $lowStock->count() }}</h1>
-        <p>Low Stock Alerts</p>
+    <div class="bg-white rounded-xl shadow p-6 text-center">
+        <p class="text-5xl font-bold {{ $lowStock->count() > 0 ? 'text-red-600' : 'text-green-600' }}">
+            {{ $lowStock->count() }}
+        </p>
+        <p class="text-gray-500 mt-2 text-sm">Low Stock Alerts</p>
     </div>
 </div>
 
 {{-- Low Stock Alerts --}}
 @if($lowStock->count() > 0)
-<h3 style="color:red">⚠️ Low Stock Alerts</h3>
-<table>
-    <tr>
-        <th>Product</th>
-        <th>Power</th>
-        <th>Quantity</th>
-    </tr>
-    @foreach($lowStock as $item)
-    <tr>
-        <td>{{ $item->product->name }}</td>
-        <td>{{ $item->power->getLabel() }}</td>
-        <td style="color:red">{{ $item->quantity }}</td>
-    </tr>
-    @endforeach
-</table>
+<div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-8">
+    <h2 class="text-red-700 font-semibold text-lg mb-3">⚠️ Low Stock Alerts</h2>
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="text-left text-red-600 border-b border-red-200">
+                <th class="pb-2">Product</th>
+                <th class="pb-2">Power</th>
+                <th class="pb-2">Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($lowStock as $item)
+            <tr class="border-b border-red-100">
+                <td class="py-2">{{ $item->product->name }}</td>
+                <td class="py-2">{{ $item->power->getLabel() }}</td>
+                <td class="py-2 text-red-600 font-bold">{{ $item->quantity }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
 @endif
 
 {{-- Recent Transactions --}}
-<h3>Recent Transactions</h3>
-<table>
-    <tr>
-        <th>Date</th>
-        <th>Product</th>
-        <th>Power</th>
-        <th>Type</th>
-        <th>Quantity</th>
-    </tr>
-    @forelse($recentTransactions as $tx)
-    <tr>
-        <td>{{ $tx->created_at->format('d M Y, h:i A') }}</td>
-        <td>{{ $tx->product->name }}</td>
-        <td>{{ $tx->power->getLabel() }}</td>
-        <td>
-            @if($tx->type == 'IN')
-                <span class="badge-in">IN</span>
-            @else
-                <span class="badge-out">OUT</span>
-            @endif
-        </td>
-        <td>{{ $tx->quantity }}</td>
-    </tr>
-    @empty
-    <tr>
-        <td colspan="5" style="text-align:center">No transactions yet</td>
-    </tr>
-    @endforelse
-</table>
+<div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-gray-700 font-semibold text-lg mb-4">Recent Transactions</h2>
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="text-left text-gray-500 border-b">
+                <th class="pb-2">Date</th>
+                <th class="pb-2">Product</th>
+                <th class="pb-2">Power</th>
+                <th class="pb-2">Type</th>
+                <th class="pb-2">Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($recentTransactions as $tx)
+            <tr class="border-b hover:bg-gray-50">
+                <td class="py-2 text-gray-500">{{ $tx->created_at->format('d M Y, h:i A') }}</td>
+                <td class="py-2">{{ $tx->product->name }}</td>
+                <td class="py-2">{{ $tx->power->getLabel() }}</td>
+                <td class="py-2">
+                    @if($tx->type == 'IN')
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">IN</span>
+                    @else
+                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">OUT</span>
+                    @endif
+                </td>
+                <td class="py-2 font-medium">{{ $tx->quantity }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="5" class="py-4 text-center text-gray-400">No transactions yet</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 
-</body>
-</html>
+@endsection

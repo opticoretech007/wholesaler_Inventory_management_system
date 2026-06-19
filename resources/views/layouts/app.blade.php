@@ -19,6 +19,8 @@
             <a href="/stock-in" class="hover:text-blue-200 transition">Stock IN</a>
             <a href="/stock-out" class="hover:text-blue-200 transition">Stock OUT</a>
             <a href="/stock-grid" class="hover:text-blue-200 transition">Stock Grid</a>
+            <a href="/powers" class="hover:text-blue-200 transition">Powers</a>
+            <a href="/total-stock" class="hover:text-blue-200 transition">Total Stock</a>
             <a href="/transactions" class="hover:text-blue-200 transition">Transactions</a>
             <a href="/reports" class="hover:text-blue-200 transition">Reports</a>
 
@@ -48,6 +50,8 @@
             <a href="/stock-in" class="px-3 py-2.5 rounded-lg hover:bg-blue-800 transition">➕ Stock IN</a>
             <a href="/stock-out" class="px-3 py-2.5 rounded-lg hover:bg-blue-800 transition">➖ Stock OUT</a>
             <a href="/stock-grid" class="px-3 py-2.5 rounded-lg hover:bg-blue-800 transition">🔢 Stock Grid</a>
+            <a href="/powers" class="hover:text-blue-200 transition">Powers</a>
+            <a href="/total-stock" class="hover:text-blue-200 transition">Total Stock</a>
             <a href="/transactions" class="px-3 py-2.5 rounded-lg hover:bg-blue-800 transition">📋 Transactions</a>
             <a href="/reports" class="px-3 py-2.5 rounded-lg hover:bg-blue-800 transition">📄 Reports</a>
 

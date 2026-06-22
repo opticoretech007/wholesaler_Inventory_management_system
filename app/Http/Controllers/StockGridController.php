@@ -2,18 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Power;
 use App\Models\Stock;
 
 class StockGridController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::all();
-        $powers = Power::all();
 
-        // Build grid: power_id => [product_id => quantity]
+        $powersQuery = Power::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $powersQuery->where(function ($q) use ($search) {
+                $q->where('sph', 'like', "%$search%")
+                  ->orWhere('cyl', 'like', "%$search%")
+                  ->orWhere('category', 'like', "%$search%");
+            });
+        }
+
+        $powers = $powersQuery->orderBy('sph')->get();
+
         $grid = [];
         foreach ($powers as $power) {
             $grid[$power->id] = [];

@@ -9,6 +9,12 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PowerGeneratorController;
 use App\Http\Controllers\TotalStockController;
+use App\Http\Controllers\StockEditController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\PurchaseController;
+
+Route::resource('purchases', PurchaseController::class);
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
@@ -42,6 +48,11 @@ Route::get('/powers', [PowerGeneratorController::class, 'index']);
 Route::delete('/powers/{id}', [PowerGeneratorController::class, 'destroy']);
 Route::delete('/powers/category/{category}', [PowerGeneratorController::class, 'destroyCategory']);
 
-
-
 Route::get('/total-stock', [TotalStockController::class, 'index']);
+
+Route::get('/stock-edit', [StockEditController::class, 'index']);
+Route::get('/stock-edit/{id}', [StockEditController::class, 'edit']);
+Route::put('/stock-edit/{id}', [StockEditController::class, 'update']);
+
+Route::resource('customers', CustomerController::class);
+Route::resource('suppliers', SupplierController::class);

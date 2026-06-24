@@ -21,4 +21,8 @@ class Sale extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+    public function payments()
+{
+    return $this->morphMany(Payment::class, 'payable');
+}
 }

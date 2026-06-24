@@ -26,6 +26,7 @@
                 <a href="/customers" class="block px-4 py-2.5 text-sm hover:bg-gray-100 transition">Customers</a>
                 <a href="/suppliers" class="block px-4 py-2.5 text-sm hover:bg-gray-100 transition">Suppliers</a>
                 <a href="/purchases" class="block px-4 py-2.5 text-sm hover:bg-gray-100 transition">Purchases</a>
+                <a href="/sales" class="hover:text-blue-200 transition">Sales</a>
                 <a href="/transactions" class="hover:text-blue-200 transition">Transactions</a>
 
                 {{-- Dropdown for Manage --}}
@@ -77,6 +78,7 @@
             <a href="/customers" class="block px-4 py-2.5 text-sm hover:bg-gray-100 transition">Customers</a>
             <a href="/suppliers" class="block px-4 py-2.5 text-sm hover:bg-gray-100 transition">Suppliers</a>
             <a href="/purchases" class="block px-4 py-2.5 text-sm hover:bg-gray-100 transition">Purchases</a>
+            <a href="/sales" class="block py-2 hover:text-blue-200 transition">Sales</a>
             <a href="/powers" class="block py-2 hover:text-blue-200 transition">Powers</a>
             <a href="/stock-edit" class="block py-2 hover:text-blue-200 transition">Edit Stock</a>
             <a href="/reports" class="block py-2 hover:text-blue-200 transition">Reports</a>

@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/stock-edit/{id}', [StockEditController::class, 'update']);
 
     // Powers
+    // API for dynamic dropdowns
+    Route::get('/api/classes/{categoryId}', [PowerGeneratorController::class, 'getClasses']);
+    Route::get('/api/subclasses/{classId}', [PowerGeneratorController::class, 'getSubclasses']);
     Route::get('/powers/generate', [PowerGeneratorController::class, 'form']);
     Route::post('/powers/generate', [PowerGeneratorController::class, 'generate']);
     Route::get('/powers', [PowerGeneratorController::class, 'index']);
@@ -65,4 +68,6 @@ Route::middleware('auth')->group(function () {
     // Sales
     Route::resource('sales', SalesController::class);
     Route::get('/sales/{id}/pdf', [SalesController::class, 'pdf'])->name('sales.pdf');
+
+    Route::get('/api/powers/{subclassId}', [PowerGeneratorController::class, 'getPowers']);
 });

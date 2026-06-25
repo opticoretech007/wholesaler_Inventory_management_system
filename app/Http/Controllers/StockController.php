@@ -11,12 +11,13 @@ class StockController extends Controller
 {
     // SHOW FORM
     public function create()
-    {
-        $products = Product::all();
-        $powers = Power::all();
+{
+    $products = Product::all();
+    $powers = Power::with('subclass.lensClass.category')->orderBy('sph')->get();
+    $categories = \App\Models\Category::with('classes.subclasses')->get();
 
-        return view('stock-in', compact('products', 'powers'));
-    }
+    return view('stock-in', compact('products', 'powers', 'categories'));
+}
 
     // STORE STOCK
     public function store(Request $request)

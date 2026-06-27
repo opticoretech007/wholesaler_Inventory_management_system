@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/powers/generate', [PowerGeneratorController::class, 'form']);
     Route::post('/powers/generate', [PowerGeneratorController::class, 'generate']);
     Route::get('/powers', [PowerGeneratorController::class, 'index']);
+    Route::delete('/powers/delete-all', [PowerGeneratorController::class, 'destroyAll']);
     Route::delete('/powers/category/{category}', [PowerGeneratorController::class, 'destroyCategory']);
     Route::delete('/powers/{id}', [PowerGeneratorController::class, 'destroy']);
 
@@ -70,4 +71,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales/{id}/pdf', [SalesController::class, 'pdf'])->name('sales.pdf');
 
     Route::get('/api/powers/{subclassId}', [PowerGeneratorController::class, 'getPowers']);
+    
 });

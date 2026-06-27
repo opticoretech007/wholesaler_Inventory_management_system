@@ -7,10 +7,20 @@
     <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
         All Powers <span class="text-gray-400 text-base font-normal">({{ $totalPowers }} total)</span>
     </h1>
-    <a href="/powers/generate"
-        class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition text-center">
-        ⚙️ Generate More
-    </a>
+    <div class="flex gap-3">
+        <form method="POST" action="/powers/delete-all"
+            onsubmit="return confirm('Are you sure? This will DELETE ALL {{ $totalPowers }} powers permanently!')">
+            @csrf @method('DELETE')
+            <button type="submit"
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+                🗑️ Delete All Powers
+            </button>
+        </form>
+        <a href="/powers/generate"
+            class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition text-center">
+            ⚙️ Generate More
+        </a>
+    </div>
 </div>
 
 @if(session('success'))

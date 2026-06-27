@@ -153,4 +153,13 @@ class PowerGeneratorController extends Controller
 
     return response()->json($powers);
 }
+
+public function destroyAll()
+{
+    \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    Power::truncate();
+    \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+    return redirect('/powers')->with('success', '🗑️ All powers deleted successfully!');
+}
 }

@@ -17,7 +17,7 @@ class TotalStockController extends Controller
         $categories = Power::select('category')->distinct()->whereNotNull('category')->pluck('category');
 
         // Base query: only stocks with quantity > 0
-        $query = Stock::with(['product', 'power'])->where('quantity', '>', 0);
+        $query = Stock::with(['product', 'power.subclass.lensClass.category'])->where('quantity', '>', 0);
 
         if ($request->filled('product_id')) {
             $query->where('product_id', $request->product_id);

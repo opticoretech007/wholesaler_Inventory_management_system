@@ -175,17 +175,19 @@ class PurchaseReturnController extends Controller
             $purchaseReturn->refund_amount = $refundAmount;
             $purchaseReturn->save();
 
-            // The refund is physically returned via cash/bank transfer, so it reduces
-            // what was recorded as paid. If the refunded amount exceeds what was paid,
-            // the excess reduces the outstanding balance instead.
+            // The refund's effect on paid/balance depends on whether this
+            // purchase was on credit when the return happens:
+            //  - If there was an outstanding balance (credit), the returned
+            //    goods simply reduce what we owe — 'paid' stays untouched,
+            //    'balance' drops by the refund amount.
+            //  - If the purchase was fully paid (balance == 0), the refund
+            //    is a real cash/bank refund, so it comes back out of 'paid'.
             $hadOutstandingBalance = $purchase->balance > 0;
 
-            if ($refundAmount <= $purchase->paid) {
-                $purchase->paid = $purchase->paid - $refundAmount;
+            if ($hadOutstandingBalance) {
+                $purchase->balance = max(0, $purchase->balance - $refundAmount);
             } else {
-                $excess = $refundAmount - $purchase->paid;
-                $purchase->paid = 0;
-                $purchase->balance = max(0, $purchase->balance - $excess);
+                $purchase->paid = max(0, $purchase->paid - $refundAmount);
             }
             $purchase->net_total = max(0, $purchase->net_total - $refundAmount);
 

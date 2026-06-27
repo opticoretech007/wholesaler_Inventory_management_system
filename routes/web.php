@@ -74,5 +74,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales/{id}/pdf', [SalesController::class, 'pdf'])->name('sales.pdf');
 
     Route::get('/api/powers/{subclassId}', [PowerGeneratorController::class, 'getPowers']);
+
     
+    Route::post('/purchases/{purchase}/pay', [PurchaseController::class, 'payBalance']);
 });

@@ -10,7 +10,9 @@ use App\Models\Power;
 use App\Models\Category;
 use App\Models\Stock;
 use App\Models\StockTransaction;
+use App\Models\PurchasePayment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseController extends Controller
 {
@@ -166,4 +168,39 @@ class PurchaseController extends Controller
 
     public function edit(Purchase $purchase) { return redirect('/purchases'); }
     public function update(Request $request, Purchase $purchase) { return redirect('/purchases'); }
+
+    public function payBalance(Request $request, Purchase $purchase)
+    {
+        $request->validate([
+            'amount'       => 'required|numeric|min:0.01|max:' . $purchase->balance,
+            'payment_mode' => 'required|in:cash,bank_transfer',
+            'notes'        => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($request, $purchase) {
+            // Record the payment
+            PurchasePayment::create([
+                'purchase_id'  => $purchase->id,
+                'amount'       => $request->amount,
+                'payment_mode' => $request->payment_mode,
+                'notes'        => $request->notes,
+                'paid_by'      => auth()->id(),
+            ]);
+
+            // Update purchase paid/balance
+            $purchase->paid += $request->amount;
+            $purchase->balance -= $request->amount;
+            $purchase->save();
+
+            // Update supplier balance (what we owe them goes down)
+            $supplier = $purchase->supplier;
+            if ($supplier) {
+                $supplier->current_balance -= $request->amount;
+                $supplier->save();
+            }
+        });
+
+        return redirect("/purchases/{$purchase->id}")
+            ->with('success', '💰 Payment recorded successfully.');
+    }
 }

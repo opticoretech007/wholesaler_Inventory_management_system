@@ -25,6 +25,12 @@
                     ↩️ Return
                 </a>
             @endif
+            @if($purchase->balance > 0)
+                <button type="button" onclick="openPayModal()"
+                    class="bg-green-100 text-green-700 hover:bg-green-200 px-4 py-2 rounded-lg text-sm font-medium">
+                    💰 Pay Balance
+                </button>
+            @endif
             <form method="POST" action="/purchases/{{ $purchase->id }}"
                 onsubmit="return confirm('Delete this purchase? Stock will be reversed!')">
                 @csrf @method('DELETE')
@@ -115,6 +121,35 @@
         </div>
     </div>
 
+    {{-- Payment History --}}
+    @if($purchase->payments->count() > 0)
+        <div class="bg-white rounded-xl shadow p-4 mt-6">
+            <h2 class="font-semibold text-gray-700 mb-3">Payment History ({{ $purchase->payments->count() }})</h2>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600">
+                        <th class="px-3 py-2 text-left">Date</th>
+                        <th class="px-3 py-2 text-left">Mode</th>
+                        <th class="px-3 py-2 text-right">Amount</th>
+                        <th class="px-3 py-2 text-left">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($purchase->payments as $payment)
+                        <tr class="border-b">
+                            <td class="px-3 py-2">{{ $payment->created_at->format('Y-m-d') }}</td>
+                            <td class="px-3 py-2 capitalize">{{ str_replace('_', ' ', $payment->payment_mode) }}</td>
+                            <td class="px-3 py-2 text-right text-green-600 font-medium">
+                                Rs. {{ number_format($payment->amount, 2) }}
+                            </td>
+                            <td class="px-3 py-2 text-gray-500">{{ $payment->notes ?? '—' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+
     {{-- Return History --}}
     @if($purchase->returns->count() > 0)
         <div class="bg-white rounded-xl shadow p-4 mt-6">
@@ -144,6 +179,81 @@
                 </tbody>
             </table>
         </div>
+    @endif
+
+    {{-- Pay Balance Modal --}}
+    @if($purchase->balance > 0)
+        <div id="payModal" class="fixed inset-0 z-50 hidden" onclick="closePayModalOutside(event)">
+            <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+            <div class="absolute inset-0 flex items-center justify-center p-4">
+                <div class="relative bg-white shadow-2xl rounded-2xl w-full max-w-md">
+                    <form method="POST" action="/purchases/{{ $purchase->id }}/pay">
+                        @csrf
+                        <div class="p-5 border-b flex justify-between items-center">
+                            <h3 class="font-bold text-gray-800 text-lg">💰 Pay Balance</h3>
+                            <button type="button" onclick="closePayModal()"
+                                class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                        </div>
+
+                        <div class="p-5 space-y-4">
+                            <div class="bg-gray-50 rounded-lg p-3 text-sm flex justify-between">
+                                <span class="text-gray-500">Current Balance Due</span>
+                                <span class="font-bold text-red-600">Rs. {{ number_format($purchase->balance, 2) }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Amount Received</label>
+                                <input type="number" name="amount" step="0.01" min="0.01"
+                                    max="{{ $purchase->balance }}" required
+                                    value="{{ number_format($purchase->balance, 2, '.', '') }}"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <p class="text-xs text-gray-400 mt-1">Max: Rs. {{ number_format($purchase->balance, 2) }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Payment Mode</label>
+                                <select name="payment_mode" required
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                    <option value="cash">Cash</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
+                                <textarea name="notes" rows="2"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="p-5 border-t flex gap-3">
+                            <button type="button" onclick="closePayModal()"
+                                class="flex-1 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium py-2 rounded-lg text-sm">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg text-sm">
+                                ✅ Record Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openPayModal() {
+                document.getElementById('payModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            function closePayModal() {
+                document.getElementById('payModal').classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+            function closePayModalOutside(e) {
+                if (e.target === e.currentTarget) closePayModal();
+            }
+        </script>
     @endif
 
 @endsection

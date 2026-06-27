@@ -177,15 +177,15 @@ class PurchaseReturnController extends Controller
 
             // The refund is physically returned via cash/bank transfer, so it reduces
             // what was recorded as paid. If the refunded amount exceeds what was paid,
-            // the excess reduces the outstanding balance instead (and the supplier's
-            // balance, since that's what we owed them for this purchase).
-            $balanceReduction = 0;
+            // the excess reduces the outstanding balance instead.
+            $hadOutstandingBalance = $purchase->balance > 0;
+
             if ($refundAmount <= $purchase->paid) {
                 $purchase->paid = $purchase->paid - $refundAmount;
             } else {
-                $balanceReduction = $refundAmount - $purchase->paid;
+                $excess = $refundAmount - $purchase->paid;
                 $purchase->paid = 0;
-                $purchase->balance = max(0, $purchase->balance - $balanceReduction);
+                $purchase->balance = max(0, $purchase->balance - $excess);
             }
             $purchase->net_total = max(0, $purchase->net_total - $refundAmount);
 
@@ -197,11 +197,15 @@ class PurchaseReturnController extends Controller
             $purchase->status = $itemsStillOwed ? 'returned' : 'partially_returned';
             $purchase->save();
 
-            // Sync supplier balance by the same amount the purchase balance dropped
-            if ($balanceReduction > 0) {
+            // Sync supplier balance: if this purchase was on credit (had an
+            // outstanding balance), the full refund amount reduces what we
+            // owe the supplier — regardless of how it was split between
+            // paid/balance above. If the purchase was fully paid, the refund
+            // is a cash/bank refund only and doesn't touch supplier balance.
+            if ($hadOutstandingBalance) {
                 $supplier = $purchase->supplier;
                 if ($supplier) {
-                    $supplier->current_balance = max(0, $supplier->current_balance - $balanceReduction);
+                    $supplier->current_balance = max(0, $supplier->current_balance - $refundAmount);
                     $supplier->save();
                 }
             }

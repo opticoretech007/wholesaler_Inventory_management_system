@@ -5,17 +5,26 @@
 
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">{{ $purchase->invoice_no }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">
+                {{ $purchase->invoice_no }}
+                @if($purchase->status === 'returned')
+                    <span class="text-xs font-medium bg-red-100 text-red-700 px-2 py-1 rounded-full align-middle">Returned</span>
+                @elseif($purchase->status === 'partially_returned')
+                    <span class="text-xs font-medium bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full align-middle">Partially Returned</span>
+                @endif
+            </h1>
             <p class="text-sm text-gray-500">{{ $purchase->invoice_date }} • {{ $purchase->supplier->name }}</p>
         </div>
         <div class="flex gap-2">
             <a href="/purchases" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-300">
                 ← Back
             </a>
-            <a href="/purchases/{{ $purchase->id }}/edit"
-                class="bg-yellow-100 text-yellow-700 hover:bg-yellow-200 px-4 py-2 rounded-lg text-sm">
-                ✏️ Edit
-            </a>
+            @if($purchase->status !== 'returned')
+                <a href="/purchases/{{ $purchase->id }}/return"
+                    class="bg-orange-100 text-orange-700 hover:bg-orange-200 px-4 py-2 rounded-lg text-sm">
+                    ↩️ Return
+                </a>
+            @endif
             <form method="POST" action="/purchases/{{ $purchase->id }}"
                 onsubmit="return confirm('Delete this purchase? Stock will be reversed!')">
                 @csrf @method('DELETE')
@@ -58,6 +67,7 @@
                     <th class="px-4 py-2 text-left">Product</th>
                     <th class="px-4 py-2 text-left">Power</th>
                     <th class="px-4 py-2 text-center">Qty</th>
+                    <th class="px-4 py-2 text-center">Returned</th>
                     <th class="px-4 py-2 text-right">Unit Price</th>
                     <th class="px-4 py-2 text-right">Total</th>
                 </tr>
@@ -69,6 +79,9 @@
                         <td class="px-4 py-2 font-medium">{{ $item->product->name }}</td>
                         <td class="px-4 py-2">{{ $item->power->getLabel() }}</td>
                         <td class="px-4 py-2 text-center">{{ $item->quantity }}</td>
+                        <td class="px-4 py-2 text-center {{ $item->returned_quantity > 0 ? 'text-red-600 font-medium' : 'text-gray-300' }}">
+                            {{ $item->returned_quantity }}
+                        </td>
                         <td class="px-4 py-2 text-right">Rs. {{ number_format($item->unit_price, 2) }}</td>
                         <td class="px-4 py-2 text-right font-medium">Rs. {{ number_format($item->total_price, 2) }}</td>
                     </tr>
@@ -76,7 +89,7 @@
             </tbody>
             <tfoot>
                 <tr class="border-t-2 bg-gray-50">
-                    <td colspan="5" class="px-4 py-2 text-right font-semibold">Net Total:</td>
+                    <td colspan="6" class="px-4 py-2 text-right font-semibold">Net Total:</td>
                     <td class="px-4 py-2 text-right font-bold text-blue-700">
                         Rs. {{ number_format($purchase->net_total, 2) }}
                     </td>
@@ -101,5 +114,36 @@
             @endif
         </div>
     </div>
+
+    {{-- Return History --}}
+    @if($purchase->returns->count() > 0)
+        <div class="bg-white rounded-xl shadow p-4 mt-6">
+            <h2 class="font-semibold text-gray-700 mb-3">Return History ({{ $purchase->returns->count() }})</h2>
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600">
+                        <th class="px-3 py-2 text-left">Date</th>
+                        <th class="px-3 py-2 text-left">Type</th>
+                        <th class="px-3 py-2 text-left">Refund Mode</th>
+                        <th class="px-3 py-2 text-right">Refund Amount</th>
+                        <th class="px-3 py-2 text-left">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($purchase->returns as $return)
+                        <tr class="border-b">
+                            <td class="px-3 py-2">{{ $return->created_at->format('Y-m-d') }}</td>
+                            <td class="px-3 py-2 capitalize">{{ $return->return_type }}</td>
+                            <td class="px-3 py-2 capitalize">{{ str_replace('_', ' ', $return->refund_mode) }}</td>
+                            <td class="px-3 py-2 text-right text-red-600 font-medium">
+                                Rs. {{ number_format($return->refund_amount, 2) }}
+                            </td>
+                            <td class="px-3 py-2 text-gray-500">{{ $return->notes ?? '—' }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
 
 @endsection

@@ -7,6 +7,7 @@ use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use App\Models\Product;
 use App\Models\Power;
+use App\Models\Category;
 use App\Models\Stock;
 use App\Models\StockTransaction;
 use Illuminate\Http\Request;
@@ -39,12 +40,13 @@ class PurchaseController extends Controller
         $suppliers = Supplier::where('is_active', true)->get();
         $products  = Product::all();
         $powers    = Power::orderBy('sph')->get();
+        $categories = Category::all();
 
         // Auto-generate invoice number
         $lastPurchase = Purchase::latest()->first();
         $invoiceNo = 'PUR-' . str_pad(($lastPurchase ? $lastPurchase->id + 1 : 1), 5, '0', STR_PAD_LEFT);
 
-        return view('purchases.create', compact('suppliers', 'products', 'powers', 'invoiceNo'));
+        return view('purchases.create', compact('suppliers', 'products', 'powers', 'categories', 'invoiceNo'));
     }
 
     public function store(Request $request)

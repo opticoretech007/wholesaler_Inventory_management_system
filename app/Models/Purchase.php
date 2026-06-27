@@ -9,7 +9,7 @@ class Purchase extends Model
     protected $fillable = [
         'invoice_no', 'supplier_id', 'invoice_date',
         'gross_total', 'discount', 'tax', 'net_total',
-        'paid', 'balance', 'payment_mode', 'memo'
+        'paid', 'balance', 'payment_mode', 'status', 'memo'
     ];
 
     public function supplier()
@@ -20,5 +20,10 @@ class Purchase extends Model
     public function items()
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function returns()
+    {
+        return $this->hasMany(PurchaseReturn::class);
     }
 }

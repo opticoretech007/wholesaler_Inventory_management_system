@@ -13,6 +13,7 @@ use App\Http\Controllers\StockEditController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesController;
 
 // Guest routes (login)
@@ -65,6 +66,8 @@ Route::middleware('auth')->group(function () {
 
     // Purchases
     Route::resource('purchases', PurchaseController::class);
+    Route::get('/purchases/{purchase}/return', [PurchaseReturnController::class, 'create']);
+    Route::post('/purchases/{purchase}/return', [PurchaseReturnController::class, 'store']);
 
     // Sales
     Route::resource('sales', SalesController::class);
